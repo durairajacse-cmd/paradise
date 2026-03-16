@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voyage Escapes | Premium Immersive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), 
+                        url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1920&q=80');
+            background-attachment: fixed;
+            background-size: cover;
+            min-height: 100vh;
+        }
+
+        .hidden { display: none !important; }
+
+        /* GLASS MORPHISM */
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .glass-card:hover { 
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-10px);
+            border-color: #f59e0b;
+        }
+
+        /* MODAL ANIMATION */
+        #booking-panel {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(100%);
+        }
+        #booking-panel.open { transform: translateX(0); }
+
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <nav class="sticky top-0 z-40 p-6">
+        <div class="max-w-7xl mx-auto bg-white/5 backdrop-blur-3xl border border-white/10 rounded-3xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-2xl">
+            <h1 class="text-xl font-black text-amber-500 italic tracking-tighter uppercase ml-4">Voyage<span class="text-white">Escapes</span></h1>
+            <div class="relative w-full max-w-md">
+                <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-white/30"></i>
+                <input type="text" id="liveSearch" onkeyup="filterTours()" placeholder="Search 'Ice' or 'Paris'..." 
+                       class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-14 pr-6 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all text-sm font-bold">
+            </div>
+            <div class="flex items-center gap-4 mr-4">
+                <span id="counter" class="text-white/40 text-[10px] font-black tracking-widest uppercase">60 TOURS READY</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-[1400px] mx-auto px-8 py-10">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" id="tour-grid">
+            <script>
+                const tours = [
+                    { name: "Icelandic Northern Glow", img: "https://images.unsplash.com/photo-1533105079780-92b9be482077?w=600", price: 1450, loc: "Reykjavik" },
+                    { name: "Swiss Mountain Highs", img: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600", price: 1890, loc: "Zermatt" },
+                    { name: "Ice Caves of Yukon", img: "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=600", price: 950, loc: "Canada" },
+                    { name: "Parisian Midnight", img: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600", price: 620, loc: "France" },
+                    { name: "Tokyo Cyber Streets", img: "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=600", price: 1100, loc: "Japan" },
+                    { name: "Bali Secret Jungle", img: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600", price: 480, loc: "Indonesia" }
+                ];
+
+                for(let i=1; i<=60; i++) {
+                    const data = tours[i % tours.length];
+                    const fullName = data.name + " #" + (100 + i);
+                    const fullPrice = data.price + (i * 2);
+                    
+                    document.write(`
+                        <div class="glass-card rounded-[2.5rem] p-3 fade-in group" data-title="${fullName.toLowerCase()}">
+                            <div class="h-56 overflow-hidden rounded-[2rem] relative">
+                                <img src="${data.img}&sig=${i}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                <span class="absolute top-4 left-4 bg-amber-500 text-slate-900 text-[9px] font-black px-3 py-1 rounded-full uppercase italic">Limited</span>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-white font-black text-lg mb-1 truncate">${fullName}</h3>
+                                <p class="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-6"><i class="fas fa-map-marker-alt text-amber-500 mr-2"></i> ${data.loc}</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-2xl font-black text-white">$${fullPrice}</span>
+                                    <button onclick="openBooking('${fullName}', '${data.img}&sig=${i}', '${fullPrice}', '${data.loc}')" 
+                                            class="bg-white text-slate-900 px-6 py-3 rounded-2xl font-black text-[10px] uppercase hover:bg-amber-500 hover:text-white transition-all">
+                                        BOOKING
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                }
+            </script>
+        </div>
+    </main>
+
+    <div id="booking-overlay" onclick="closeBooking()" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50"></div>
+    
+    <div id="booking-panel" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-slate-900 z-[60] shadow-[-20px_0_50px_rgba(0,0,0,0.5)] flex flex-col">
+        <div class="relative h-72">
+            <img id="panel-img" src="" class="w-full h-full object-cover">
+            <button onclick="closeBooking()" class="absolute top-6 left-6 bg-white/20 backdrop-blur-md text-white w-10 h-10 rounded-full hover:bg-white hover:text-slate-900 transition-all">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="p-10 flex-1 overflow-y-auto">
+            <div class="mb-10">
+                <p id="panel-loc" class="text-amber-500 font-black text-[10px] uppercase tracking-widest mb-2">Location</p>
+                <h2 id="panel-name" class="text-3xl font-black text-white leading-tight mb-4">Tour Name</h2>
+                <div class="flex items-center gap-6">
+                    <span id="panel-price" class="text-4xl font-black text-white">$0</span>
+                    <span class="text-white/30 text-xs font-bold italic">All-inclusive <br>Per person</span>
+                </div>
+            </div>
+
+            <div class="space-y-6 mb-12">
+                <div class="flex items-start gap-4 text-white/60">
+                    <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-amber-500 shrink-0"><i class="fas fa-calendar-check"></i></div>
+                    <div><p class="text-white font-bold text-sm">Next Departure</p><p class="text-[11px]">March 25, 2026 - (7 Days)</p></div>
+                </div>
+                <div class="flex items-start gap-4 text-white/60">
+                    <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-amber-500 shrink-0"><i class="fas fa-hotel"></i></div>
+                    <div><p class="text-white font-bold text-sm">Accomodation</p><p class="text-[11px]">5-Star Boutique Eco-Suites</p></div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <input type="text" placeholder="Your Full Name" class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white font-bold text-sm focus:border-amber-500 outline-none transition-all">
+                <button onclick="confirmSuccess()" class="w-full bg-amber-500 text-slate-900 py-5 rounded-2xl font-black text-lg hover:bg-white transition-all shadow-2xl">RESERVE MY SPOT</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="success-view" class="hidden fixed inset-0 z-[100] bg-amber-500 flex items-center justify-center p-6 text-center">
+        <div class="bg-slate-900 p-12 rounded-[4rem] max-w-sm shadow-2xl fade-in">
+            <i class="fas fa-check-circle text-amber-500 text-7xl mb-6"></i>
+            <h3 class="text-3xl font-black text-white mb-2">Booking Success</h3>
+            <p class="text-white/40 mb-10 text-sm">Our travel concierge will contact you within 1 hour.</p>
+            <button onclick="location.reload()" class="w-full bg-white text-slate-900 py-4 rounded-2xl font-black">CONTINUE EXPLORING</button>
+        </div>
+    </div>
+
+    <script>
+        function openBooking(name, img, price, loc) {
+            document.body.style.overflow = 'hidden';
+            document.getElementById('booking-overlay').classList.remove('hidden');
+            document.getElementById('booking-panel').classList.add('open');
+            
+            document.getElementById('panel-img').src = img;
+            document.getElementById('panel-name').innerText = name;
+            document.getElementById('panel-price').innerText = "$" + price;
+            document.getElementById('panel-loc').innerText = loc;
+        }
+
+        function closeBooking() {
+            document.body.style.overflow = 'auto';
+            document.getElementById('booking-overlay').classList.add('hidden');
+            document.getElementById('booking-panel').classList.remove('open');
+        }
+
+        function confirmSuccess() {
+            document.getElementById('success-view').classList.remove('hidden');
+        }
+
+        function filterTours() {
+            const query = document.getElementById('liveSearch').value.toLowerCase();
+            const cards = document.querySelectorAll('.glass-card');
+            let count = 0;
+
+            cards.forEach(card => {
+                if(card.getAttribute('data-title').includes(query)) {
+                    card.classList.remove('hidden');
+                    count++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+            document.getElementById('counter').innerText = `${count} TOURS MATCHED`;
+        }
+    </script>
+</body>
+</html>

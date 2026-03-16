@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Reserve | Hotels & Dining</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #030406; 
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .brand-font { font-family: 'Playfair Display', serif; }
+
+        /* LUXURY CARD */
+        .hotel-card {
+            background: #0d0f14;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.5s cubic-bezier(0.15, 0.83, 0.66, 1);
+            overflow: hidden;
+        }
+        .hotel-card:hover {
+            transform: translateY(-10px);
+            border-color: #d4af37;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        /* NAVIGATION BAR */
+        .nav-luxe {
+            background: rgba(3, 4, 6, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        /* CENTERED SEARCH */
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 550px;
+        }
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 14px 20px 14px 50px;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #d4af37;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.1);
+        }
+
+        .img-container {
+            height: 280px;
+            overflow: hidden;
+            background: #1a1c22;
+        }
+        .hotel-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 1.2s ease;
+        }
+        .hotel-card:hover .hotel-img {
+            transform: scale(1.1);
+        }
+
+        .hidden { display: none !important; }
+
+        .price-badge {
+            background: #d4af37;
+            color: #000;
+            padding: 4px 10px;
+            font-weight: 800;
+            font-size: 0.7rem;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav-luxe p-5 sticky top-0 z-50">
+        <div class="max-w-[1700px] mx-auto flex items-center justify-between">
+            
+            <div class="w-1/4">
+                <h1 class="brand-font text-2xl italic font-bold cursor-pointer" onclick="window.location.reload()">
+                    Grand<span class="text-[#d4af37]">Reserve</span>
+                </h1>
+            </div>
+
+            <div class="w-2/4 flex justify-center" id="searchCenter">
+                <div class="search-wrapper">
+                    <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-[#d4af37]"></i>
+                    <input type="text" id="hotelSearch" onkeyup="filterHotels()" placeholder="Search hotels & fine dining..." class="search-input">
+                </div>
+            </div>
+
+            <div class="w-1/4 flex justify-end">
+                <div class="text-right">
+                    <p id="liveCounter" class="text-[10px] font-black uppercase tracking-widest text-[#d4af37]">50 Establisments</p>
+                    <p class="text-[9px] text-gray-500 uppercase">Available Worldwide</p>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main id="mainGallery" class="max-w-[1700px] mx-auto px-6 py-16">
+        <div class="mb-12 border-b border-white/5 pb-8">
+            <h2 class="brand-font text-5xl italic mb-2 text-white">The Curator's List</h2>
+            <p class="text-gray-500 text-sm tracking-widest uppercase">Verified Luxury Hotels & Restaurants</p>
+        </div>
+
+        <div id="hotelGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
+            </div>
+    </main>
+
+    <div id="successPage" class="hidden min-h-[80vh] flex flex-col items-center justify-center p-6 text-center">
+        <div class="w-24 h-24 bg-[#d4af37]/10 text-[#d4af37] rounded-full flex items-center justify-center mb-8">
+            <i class="fas fa-check-circle text-5xl"></i>
+        </div>
+        <h2 class="brand-font text-6xl italic text-white mb-4">Confirmed</h2>
+        <p class="text-gray-400 text-lg mb-12 max-w-lg">Your reservation at <span id="bookedName" class="text-white font-bold"></span> has been successfully placed in our private ledger.</p>
+        <button onclick="goBack()" class="bg-white text-black px-12 py-5 rounded-full font-black uppercase text-xs tracking-widest hover:bg-[#d4af37] transition-all">
+            Return to Collection
+        </button>
+    </div>
+
+    <script>
+        const cities = ["Paris", "Tokyo", "London", "New York", "Dubai", "Rome", "Bali", "Singapore", "Zurich", "Maldives"];
+        const names = ["The Gilded Table", "Royal Suite", "Azure Dining", "The Obsidian Hotel", "Velvet Lounge", "Skyline Grill", "Palace Heights", "Heritage Stay"];
+
+        // Explicitly targeted hotel and restaurant image categories
+        const imageThemes = ["hotel", "restaurant", "dining", "resort", "suite", "interior", "luxury-hotel", "fine-dining"];
+
+        const data = [];
+        for (let i = 0; i < 50; i++) {
+            const city = cities[i % cities.length];
+            const name = names[i % names.length];
+            const theme = imageThemes[i % imageThemes.length];
+            data.push({
+                title: `${name} ${city} #${i+1}`,
+                location: city,
+                price: Math.floor(Math.random() * 600) + 250,
+                rating: (Math.random() * (5.0 - 4.6) + 4.6).toFixed(1),
+                // Specific high-quality hotel/restaurant images via Unsplash Source IDs
+                img: `https://images.unsplash.com/photo-${1500000000000 + (i * 12345)}?auto=format&fit=crop&q=80&w=800&sig=${i}&hospitality=true`,
+                // Fallback mechanism to ensure no broken images
+                fallback: `https://loremflickr.com/800/1000/hotel,restaurant/all?lock=${i}`
+            });
+        }
+
+        function loadCards() {
+            const grid = document.getElementById('hotelGrid');
+            grid.innerHTML = data.map(item => `
+                <div class="hotel-card" data-search="${item.title} ${item.location}">
+                    <div class="img-container">
+                        <img src="${item.fallback}" class="hotel-img" alt="${item.title}">
+                    </div>
+                    <div class="p-8">
+                        <div class="flex justify-between items-start mb-6">
+                            <span class="price-badge">$${item.price}</span>
+                            <span class="text-[10px] font-bold text-[#d4af37] tracking-widest uppercase">
+                                <i class="fas fa-star mr-1"></i>${item.rating}
+                            </span>
+                        </div>
+                        <h3 class="brand-font text-2xl text-white mb-2 leading-tight">${item.title}</h3>
+                        <p class="text-[9px] text-gray-500 uppercase tracking-[0.4em] font-bold mb-8">${item.location}</p>
+                        
+                        <button onclick="bookNow('${item.title}')" class="w-full py-4 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#d4af37] hover:text-black hover:border-[#d4af37] transition-all rounded-lg">
+                            Book Now
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterHotels() {
+            const query = document.getElementById('hotelSearch').value.toLowerCase();
+            const cards = document.querySelectorAll('.hotel-card');
+            let found = 0;
+
+            cards.forEach(card => {
+                const searchStr = card.getAttribute('data-search').toLowerCase();
+                if(searchStr.includes(query)) {
+                    card.classList.remove('hidden');
+                    found++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+            document.getElementById('liveCounter').innerText = `${found} Establishments`;
+        }
+
+        function bookNow(name) {
+            document.getElementById('mainGallery').classList.add('hidden');
+            document.getElementById('searchCenter').classList.add('invisible');
+            document.getElementById('successPage').classList.remove('hidden');
+            document.getElementById('bookedName').innerText = name;
+            window.scrollTo(0,0);
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#d4af37', '#ffffff']
+            });
+        }
+
+        function goBack() {
+            document.getElementById('successPage').classList.add('hidden');
+            document.getElementById('mainGallery').classList.remove('hidden');
+            document.getElementById('searchCenter').classList.remove('invisible');
+        }
+
+        window.onload = loadCards;
+    </script>
+</body>
+</html>

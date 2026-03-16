@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Pass | Mega Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: white; overflow-x: hidden; }
+        .hidden { display: none !important; }
+
+        /* MEGA CARDS */
+        .mega-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            height: 380px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        .mega-card:hover {
+            border-color: #22d3ee;
+            transform: scale(1.03) translateY(-15px);
+            background: rgba(34, 211, 238, 0.08);
+            box-shadow: 0 40px 80px -15px rgba(0, 0, 0, 0.6);
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(50px);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* SEARCH ANIMATION */
+        .search-focus:focus {
+            box-shadow: 0 0 30px rgba(34, 211, 238, 0.3);
+            border-color: #22d3ee;
+        }
+    </style>
+</head>
+<body class="bg-slate-950">
+
+    <div id="dashboard">
+        <nav class="p-8 border-b border-white/5 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-40">
+            <div class="max-w-[1800px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+                <h1 class="text-3xl font-black italic tracking-tighter text-cyan-400">UNIVERSAL<span class="text-white">PASS</span></h1>
+                
+                <div class="relative w-full max-w-2xl">
+                    <i class="fas fa-search absolute left-6 top-1/2 -translate-y-1/2 text-cyan-400 text-lg"></i>
+                    <input type="text" id="megaSearch" onkeyup="filterDestinations()" placeholder="Search from 20+ Global Destinations..." 
+                           class="search-focus w-full bg-white/5 border border-white/10 rounded-3xl py-5 pl-16 pr-8 text-white focus:outline-none transition-all text-lg font-bold">
+                </div>
+
+                <div class="hidden xl:block bg-cyan-500/10 border border-cyan-500/30 px-6 py-3 rounded-full text-[11px] font-black uppercase tracking-widest">
+                    AI Systems Online
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-[1800px] mx-auto px-10 py-16">
+            <div class="mb-16 flex justify-between items-end">
+                <div>
+                    <h2 class="text-7xl font-black italic mb-4 tracking-tighter">Global Hub</h2>
+                    <p class="text-white/30 text-xl font-medium">Pick a territory to initialize visa protocols.</p>
+                </div>
+                <p id="resultCount" class="text-cyan-400 font-black text-sm uppercase tracking-widest">24 Destinations Available</p>
+            </div>
+
+            <div id="mega-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
+                </div>
+        </main>
+    </div>
+
+    <div id="side-panel" class="hidden fixed inset-0 z-50 flex justify-end">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closePanel()"></div>
+        
+        <div class="glass-panel w-full max-w-2xl h-full p-20 relative overflow-y-auto">
+            <button onclick="closePanel()" class="mb-12 text-white/20 hover:text-white transition-all">
+                <i class="fas fa-arrow-left text-3xl"></i>
+            </button>
+
+            <div id="booking-options">
+                <h2 id="selected-country" class="text-6xl font-black italic mb-4 text-cyan-400">--</h2>
+                <p class="text-white/40 font-bold uppercase tracking-[0.4em] mb-16">Select Visa Class</p>
+
+                <div class="space-y-8">
+                    <div onclick="completeProcess('Tourist')" class="group p-10 border border-white/10 rounded-[3rem] cursor-pointer hover:bg-cyan-500 hover:border-cyan-500 transition-all">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="text-2xl font-black group-hover:text-slate-900">Tourist Entry</h4>
+                                <p class="text-sm text-white/40 group-hover:text-slate-900/60 uppercase font-bold tracking-widest mt-2">Standard Protocol</p>
+                            </div>
+                            <span class="text-3xl font-black group-hover:text-slate-900">$165</span>
+                        </div>
+                    </div>
+
+                    <div onclick="completeProcess('Business')" class="group p-10 border border-white/10 rounded-[3rem] cursor-pointer hover:bg-cyan-500 hover:border-cyan-500 transition-all">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="text-2xl font-black group-hover:text-slate-900">Business Elite</h4>
+                                <p class="text-sm text-white/40 group-hover:text-slate-900/60 uppercase font-bold tracking-widest mt-2">Expedited Review</p>
+                            </div>
+                            <span class="text-3xl font-black group-hover:text-slate-900">$320</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="completion-view" class="hidden text-center py-20">
+                <div class="w-32 h-32 bg-cyan-500 rounded-full flex items-center justify-center mx-auto mb-12 shadow-[0_0_60px_rgba(34,211,238,0.5)]">
+                    <i class="fas fa-check text-5xl text-white"></i>
+                </div>
+                <h3 class="text-5xl font-black italic mb-6 uppercase tracking-tighter">SUBMITTED</h3>
+                <p class="text-white/40 text-lg leading-relaxed mb-16 px-10">Application successfully routed to international processing servers. You will receive a biometric link shortly.</p>
+                <button onclick="closePanel()" class="w-full bg-white text-slate-900 py-6 rounded-3xl font-black uppercase text-sm tracking-widest hover:bg-cyan-400 transition-colors">Return to Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const destinations = [
+            { n: "United Kingdom", i: "fas fa-landmark", c: "#38bdf8" },
+            { n: "Japan", i: "fas fa-torii-gate", c: "#f87171" },
+            { n: "Switzerland", i: "fas fa-mountain", c: "#fbbf24" },
+            { n: "United States", i: "fas fa-statue-of-liberty", c: "#60a5fa" },
+            { n: "France", i: "fas fa-archway", c: "#818cf8" },
+            { n: "Australia", i: "fas fa-shuttle-van", c: "#4ade80" },
+            { n: "Germany", i: "fas fa-castle", c: "#fb923c" },
+            { n: "Canada", i: "fas fa-leaf", c: "#f43f5e" },
+            { n: "United Arab Emirates", i: "fas fa-city", c: "#a78bfa" },
+            { n: "Singapore", i: "fas fa-tree", c: "#2dd4bf" },
+            { n: "South Korea", i: "fas fa-temple", c: "#fb7185" },
+            { n: "Italy", i: "fas fa-pizza-slice", c: "#34d399" },
+            { n: "Brazil", i: "fas fa-drum", c: "#fbbf24" },
+            { n: "India", i: "fas fa-om", c: "#f97316" },
+            { n: "New Zealand", i: "fas fa-kiwi-bird", c: "#a3e635" },
+            { n: "Turkey", i: "fas fa-mosque", c: "#e879f9" },
+            { n: "Netherlands", i: "fas fa-windmil", c: "#6366f1" },
+            { n: "Spain", i: "fas fa-bullseye", c: "#f43f5e" },
+            { n: "Norway", i: "fas fa-snowflake", c: "#38bdf8" },
+            { n: "Thailand", i: "fas fa-vihara", c: "#fbbf24" }
+        ];
+
+        function init() {
+            const grid = document.getElementById('mega-grid');
+            destinations.forEach(d => {
+                const card = document.createElement('div');
+                card.className = "mega-card rounded-[4rem]";
+                card.setAttribute('data-name', d.n.toLowerCase());
+                card.onclick = () => openBooking(d.n);
+                card.innerHTML = `
+                    <i class="${d.i} text-7xl mb-10" style="color: ${d.c}"></i>
+                    <h3 class="text-4xl font-black italic tracking-tighter">${d.n}</h3>
+                    <div class="mt-6 flex gap-4">
+                        <span class="text-[9px] font-black uppercase text-white/20 border border-white/10 px-3 py-1 rounded-full">Automated Entry</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterDestinations() {
+            const query = document.getElementById('megaSearch').value.toLowerCase();
+            const cards = document.querySelectorAll('.mega-card');
+            let count = 0;
+
+            cards.forEach(card => {
+                if(card.getAttribute('data-name').includes(query)) {
+                    card.classList.remove('hidden');
+                    count++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+            document.getElementById('resultCount').innerText = `${count} Destinations Found`;
+        }
+
+        function openBooking(country) {
+            document.getElementById('selected-country').innerText = country;
+            document.getElementById('side-panel').classList.remove('hidden');
+            document.getElementById('booking-options').classList.remove('hidden');
+            document.getElementById('completion-view').classList.add('hidden');
+        }
+
+        function completeProcess(type) {
+            document.getElementById('booking-options').classList.add('hidden');
+            document.getElementById('completion-view').classList.remove('hidden');
+            
+            confetti({
+                particleCount: 200,
+                spread: 90,
+                origin: { x: 0.8, y: 0.5 },
+                colors: ['#22d3ee', '#ffffff']
+            });
+        }
+
+        function closePanel() {
+            document.getElementById('side-panel').classList.add('hidden');
+        }
+
+        init();
+    </script>
+</body>
+</html>

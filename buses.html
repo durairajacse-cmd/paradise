@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voyage Wheels | Premium Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
+        .hidden { display: none; }
+        .bus-card { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; transform: translateY(20px); }
+        .bus-card.show { opacity: 1; transform: translateY(0); }
+        .seat { width: 30px; height: 38px; border: 2px solid #e2e8f0; border-radius: 4px; cursor: pointer; }
+        .seat.selected { background: #f59e0b; border-color: #d97706; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+        .seat.occupied { background: #cbd5e1; cursor: not-allowed; opacity: 0.3; }
+        .hero-gradient { background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2000'); background-size: cover; background-position: center; }
+    </style>
+</head>
+<body>
+
+    <div id="search-container" class="min-h-screen flex flex-col">
+        <nav class="p-6 flex justify-between items-center bg-white shadow-sm">
+            <h1 class="text-2xl font-black text-amber-500 italic uppercase">Voyage<span class="text-slate-900">Wheels</span></h1>
+            <button class="text-slate-400 font-bold text-sm hover:text-amber-500">Login / Signup</button>
+        </nav>
+
+        <div class="flex-1 hero-gradient flex flex-col items-center justify-center px-6">
+            <div class="max-w-4xl w-full text-center">
+                <h2 class="text-5xl font-extrabold text-white mb-4">Your Journey Starts Here</h2>
+                <p class="text-slate-300 mb-10 text-lg">Book luxury coaches for over 500+ destinations</p>
+                
+                <div class="bg-white p-4 rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row gap-3">
+                    <div class="flex-1 flex items-center bg-slate-50 px-6 py-4 rounded-3xl border border-slate-100">
+                        <i class="fas fa-bus text-amber-500 mr-4"></i>
+                        <input type="text" id="fromCity" placeholder="From City" class="bg-transparent w-full focus:outline-none font-bold text-slate-800">
+                    </div>
+                    <div class="flex-1 flex items-center bg-slate-50 px-6 py-4 rounded-3xl border border-slate-100">
+                        <i class="fas fa-location-arrow text-blue-500 mr-4"></i>
+                        <input type="text" id="toCity" placeholder="To City" class="bg-transparent w-full focus:outline-none font-bold text-slate-800">
+                    </div>
+                    <button onclick="executeSearch()" class="bg-amber-500 text-white px-14 py-4 rounded-3xl font-black text-lg hover:bg-slate-900 transition-all active:scale-95">
+                        SEARCH
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="results-page" class="hidden min-h-screen py-16 px-6 max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-slate-200 pb-8">
+            <div>
+                <h3 class="text-3xl font-black text-slate-900 mb-2">Available Luxury Coaches</h3>
+                <p class="text-slate-500 font-medium" id="search-summary">Showing 20 results for your route</p>
+            </div>
+            <button onclick="location.reload()" class="mt-4 md:mt-0 text-amber-600 font-bold underline">Change Search</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10" id="bus-grid">
+            </div>
+    </div>
+
+    <div id="seat-page" class="hidden min-h-screen py-16 px-6 bg-slate-50">
+        <div class="max-w-5xl mx-auto flex flex-col lg:flex-row gap-12">
+            <div class="flex-1">
+                <div class="bg-white p-12 rounded-[3rem] shadow-xl border-t-[12px] border-slate-900">
+                    <div class="grid grid-cols-4 gap-6">
+                        <script>
+                            for(let r=1; r<=10; r++) {
+                                document.write(`
+                                    <div class="seat" onclick="selectSeat(this, 'L${r}')"></div>
+                                    <div class="seat ${r%5==0?'occupied':''}" onclick="selectSeat(this, 'R${r}A')"></div>
+                                    <div class="text-[10px] font-bold text-slate-300 text-center">${r}</div>
+                                    <div class="seat" onclick="selectSeat(this, 'R${r}B')"></div>
+                                `);
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full lg:w-96 space-y-6">
+                <div class="bg-white p-8 rounded-3xl shadow-lg border border-slate-100">
+                    <h4 id="target-bus" class="text-2xl font-black text-slate-900 mb-6">Bus Name</h4>
+                    <div class="space-y-4 mb-10">
+                        <div class="flex justify-between text-sm"><span class="text-slate-400 font-bold uppercase">Seats:</span><span id="seat-label" class="font-black text-amber-500">--</span></div>
+                        <div class="flex justify-between text-2xl font-black pt-4 border-t border-slate-100"><span>Total:</span><span id="price-label">$0</span></div>
+                    </div>
+                    <button onclick="finalConfirmation()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-xl hover:bg-amber-500 transition-all">Confirm Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ticket-page" class="hidden min-h-screen flex items-center justify-center p-6 bg-amber-500">
+        <div class="bg-white w-full max-w-md rounded-[3rem] p-10 text-center shadow-2xl">
+            <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900">Booking Success</h2>
+            <p class="text-slate-400 font-medium mb-10">Your journey is now confirmed!</p>
+            <div class="bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-200 text-left mb-8">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ticket Number</p>
+                <p id="final-id" class="text-2xl font-black text-slate-900 mb-4 tracking-tighter">#VW-442810</p>
+                <div class="flex justify-between text-xs font-bold text-slate-600">
+                    <span id="final-bus-name">Bus Name</span>
+                    <span id="final-seat-names" class="text-amber-600">--</span>
+                </div>
+            </div>
+            <button onclick="location.reload()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black">Book Another Trip</button>
+        </div>
+    </div>
+
+    <script>
+        const busPool = [
+            "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=800",
+            "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?q=80&w=800",
+            "https://images.unsplash.com/photo-1562620644-66bd32890600?q=80&w=800",
+            "https://images.unsplash.com/photo-1517055743118-ed06da09a3dc?q=80&w=800",
+            "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=801",
+            "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?q=80&w=801"
+        ];
+        const names = ["Golden Travels", "Night Queen", "Falcon Luxury", "Urban Sleeper", "Silver Coach", "Oceanic AC", "Metro Express", "Skyline Voyager"];
+        
+        let currentBooking = { name: '', price: 0, seats: [] };
+
+        function executeSearch() {
+            const from = document.getElementById('fromCity').value;
+            const to = document.getElementById('toCity').value;
+            if(!from || !to) return alert("Please enter both cities");
+
+            document.getElementById('search-container').classList.add('hidden');
+            const resultsPage = document.getElementById('results-page');
+            resultsPage.classList.remove('hidden');
+            document.getElementById('search-summary').innerText = `Direct buses from ${from} to ${to}`;
+
+            const grid = document.getElementById('bus-grid');
+            grid.innerHTML = '';
+            
+            for(let i=1; i<=20; i++) {
+                const busImg = busPool[i % busPool.length];
+                const busName = names[i % names.length] + " #" + (100 + i);
+                const price = 25 + (i % 15);
+                
+                const card = document.createElement('div');
+                card.className = "bus-card bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-sm flex flex-col";
+                card.innerHTML = `
+                    <div class="relative h-56">
+                        <img src="${busImg}" class="w-full h-full object-cover">
+                        <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-800">Verified Luxury</div>
+                    </div>
+                    <div class="p-8">
+                        <div class="flex justify-between items-start mb-6">
+                            <h4 class="text-xl font-black text-slate-900 leading-tight">${busName}</h4>
+                            <p class="text-3xl font-black text-amber-500">$${price}</p>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-400 mb-8 font-bold text-xs">
+                            <span><i class="fas fa-snowflake mr-2"></i> AC</span>
+                            <span><i class="fas fa-wifi mr-2"></i> WIFI</span>
+                            <span><i class="fas fa-couch mr-2"></i> 2+1 SLEEPER</span>
+                        </div>
+                        <button onclick="goToSeats('${busName}', ${price})" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black hover:bg-amber-500 transition-all shadow-lg">VIEW SEATS</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+                setTimeout(() => card.classList.add('show'), i * 100);
+            }
+        }
+
+        function goToSeats(name, price) {
+            currentBooking.name = name;
+            currentBooking.price = price;
+            document.getElementById('results-page').classList.add('hidden');
+            document.getElementById('seat-page').classList.remove('hidden');
+            document.getElementById('target-bus').innerText = name;
+            window.scrollTo(0,0);
+        }
+
+        function selectSeat(el, id) {
+            if(el.classList.contains('occupied')) return;
+            if(currentBooking.seats.includes(id)) {
+                currentBooking.seats = currentBooking.seats.filter(s => s !== id);
+                el.classList.remove('selected');
+            } else {
+                currentBooking.seats.push(id);
+                el.classList.add('selected');
+            }
+            document.getElementById('seat-label').innerText = currentBooking.seats.join(', ') || '--';
+            document.getElementById('price-label').innerText = "$" + (currentBooking.seats.length * currentBooking.price);
+        }
+
+        function finalConfirmation() {
+            if(currentBooking.seats.length === 0) return alert("Please select a seat");
+            const id = "#VW-" + Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('seat-page').classList.add('hidden');
+            document.getElementById('ticket-page').classList.remove('hidden');
+            document.getElementById('final-id').innerText = id;
+            document.getElementById('final-bus-name').innerText = currentBooking.name;
+            document.getElementById('final-seat-names').innerText = currentBooking.seats.join(', ');
+        }
+    </script>
+</body>
+</html>

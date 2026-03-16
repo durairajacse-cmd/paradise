@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Transit | Fleet Map</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #cd4517; /* Light travel-grey background */
+            color: #0f172a;
+        }
+
+        .hidden { display: none !important; }
+
+        /* TRAVEL CARD DESIGN */
+        .travel-card {
+            background: rgb(195, 236, 242);
+            border-radius: 1.5rem;
+            border: 1px solid #000000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .travel-card:hover {
+            transform: translateY(-5px);
+            border-color: #3b82f6;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* BLUE HEADER THEME */
+        .nav-gradient {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        }
+
+        .price-badge {
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 0.75rem;
+        }
+
+        .search-bar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <nav class="nav-gradient p-6 text-white sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-4">
+                <i class="fas fa-route text-2xl"></i>
+                <h1 class="text-xl font-black tracking-tighter uppercase">Global<span class="opacity-50">Transit</span></h1>
+            </div>
+            
+            <div class="flex-1 max-w-xl w-full">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-white/50"></i>
+                    <input type="text" id="cabSearch" onkeyup="searchCabs()" placeholder="Search vehicle type or location..." 
+                           class="search-bar w-full py-3 pl-12 pr-4 rounded-full text-sm text-white placeholder-white/60 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <button class="bg-white text-blue-700 px-6 py-2 rounded-full font-black text-xs uppercase tracking-widest shadow-lg">My Bookings</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-12">
+        <div class="flex justify-between items-end mb-10">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900">Nearby Vehicles</h2>
+                <p class="text-slate-500 font-medium">Real-time availability based on your current terminal.</p>
+            </div>
+            <div class="text-right">
+                <span class="text-xs font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-4 py-2 rounded-full border border-blue-100">
+                    <i class="fas fa-map-marker-alt mr-2"></i>Terminal 3
+                </span>
+            </div>
+        </div>
+
+        <div id="cab-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            </div>
+    </main>
+
+    <div id="bookingModal" class="hidden fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2.5rem] p-10 max-w-md w-full text-center shadow-2xl">
+            <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-check-circle text-4xl"></i>
+            </div>
+            <h3 class="text-2xl font-black text-slate-900 mb-2">Request Confirmed</h3>
+            <p class="text-slate-500 text-sm mb-8">Your driver is navigating to your location now. Please head to the designated pickup zone.</p>
+            <button onclick="closeModal()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-blue-700 transition-all">Close Tracker</button>
+        </div>
+    </div>
+
+    <script>
+        const carData = [
+            { name: "Executive Sedan", model: "Mercedes S-Class", price: 45, seats: 4, eta: "2m", loc: "Apt Gate A" },
+            { name: "Family Wagon", model: "Toyota Alphard", price: 20, seats: 7, eta: "5m", loc: "Apt Gate B" },
+            { name: "Tesla Elite", model: "Model S Plaid", price: 35, seats: 4, eta: "3m", loc: "Apt Gate A" },
+            { name: "City Compact", model: "BMW i3", price: 15, seats: 2, eta: "1m", loc: "Parking P1" },
+            { name: "Group Transit", model: "Ford Transit", price: 10, seats: 12, eta: "8m", loc: "Apt Gate C" },
+            { name: "Grand SUV", model: "Range Rover", price: 55, seats: 5, eta: "6m", loc: "Apt Gate B" },
+            { name: "Classic Cab", model: "Toyota Camry", price: 12, seats: 4, eta: "4m", loc: "Parking P2" },
+            { name: "Neo Shuttle", model: "Audi e-tron", price: 30, seats: 4, eta: "9m", loc: "Apt Gate A" },
+            { name: "Urban Rider", model: "Honda Accord", price: 18, seats: 4, eta: "12m", loc: "Parking P4" },
+            { name: "Prime SUV", model: "Cadillac Escalade", price: 65, seats: 7, eta: "4m", loc: "Apt Gate B" },
+            { name: "Economy Plus", model: "Hyundai Ioniq", price: 14, seats: 4, eta: "2m", loc: "Apt Gate C" },
+            { name: "Luxury Van", model: "V-Class Maybach", price: 80, seats: 6, eta: "15m", loc: "VIP Exit" }
+        ];
+
+        function loadCabs() {
+            const grid = document.getElementById('cab-grid');
+            grid.innerHTML = ""; // Clear
+            carData.forEach(car => {
+                grid.innerHTML += `
+                    <div class="travel-card p-6" data-search="${car.name} ${car.model}">
+                        <div class="flex justify-between items-start mb-6">
+                            <span class="price-badge">$${car.price}/seat</span>
+                            <span class="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md uppercase">${car.eta} away</span>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-xl font-black text-slate-900">${car.name}</h3>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter">${car.model}</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                <p class="text-[8px] font-black text-slate-400 uppercase">Capacity</p>
+                                <p class="text-sm font-bold">${car.seats} Seats</p>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                <p class="text-[8px] font-black text-slate-400 uppercase">Pickup</p>
+                                <p class="text-sm font-bold truncate">${car.loc}</p>
+                            </div>
+                        </div>
+
+                        <button onclick="bookCab()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-colors">
+                            Book Vehicle
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function searchCabs() {
+            const query = document.getElementById('cabSearch').value.toLowerCase();
+            const cards = document.querySelectorAll('.travel-card');
+            cards.forEach(card => {
+                card.style.display = card.getAttribute('data-search').toLowerCase().includes(query) ? "block" : "none";
+            });
+        }
+
+        function bookCab() {
+            document.getElementById('bookingModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('bookingModal').classList.add('hidden');
+        }
+
+        window.onload = loadCabs;
+    </script>
+</body>
+</html>

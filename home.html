@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Traveller home</title>
+<link rel="stylesheet" href="style.css">
+<style>
+
+  body
+  {
+    background-image: url(bg.webp) ;
+  }
+  /* --- AI FLOATING SYSTEM --- */
+  #ai-trigger {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 65px;
+    height: 65px;
+    background: linear-gradient(135deg, #008cff, #00c6ff);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0, 140, 255, 0.4);
+    z-index: 10000;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  #ai-trigger:hover { transform: scale(1.1) rotate(5deg); }
+
+  #ai-chat-window {
+    position: fixed;
+    bottom: 110px;
+    right: 30px;
+    width: 380px;
+    height: 520px;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 10000;
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .ai-header {
+    background: #008cff;
+    background: linear-gradient(to right, #008cff, #0056b3);
+    color: white;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  #ai-body {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #fdfdfd;
+    scroll-behavior: smooth;
+  }
+
+  .msg {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 14.5px;
+    line-height: 1.5;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .bot-msg { background: #f0f2f5; color: #1c1e21; align-self: flex-start; border-bottom-left-radius: 4px; }
+  .user-msg { background: #008cff; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 4px 10px rgba(0, 140, 255, 0.2); }
+
+  .typing { font-style: italic; color: #888; font-size: 12px; display: none; margin-bottom: 10px; }
+
+  .ai-footer {
+    padding: 15px;
+    background: #fff;
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid #eee;
+  }
+  .ai-footer input {
+    flex: 1;
+    border: 1px solid #e0e0e0;
+    padding: 12px 18px;
+    border-radius: 25px;
+    outline: none;
+    font-size: 14px;
+    transition: border 0.3s;
+  }
+  .ai-footer input:focus { border-color: #008cff; }
+  .ai-footer button {
+    background: #008cff;
+    border: none;
+    color: white;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .ai-footer button:hover { background: #0056b3; transform: scale(1.05); }
+</style>
+</style>
+
+<!-- Icons -->
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+
+<div class="menu-bar">
+    <div class="logo">Traveler</div>
+
+      <div class="menu-item active">
+    <i class="fa-solid fa-house"></i>
+    <span>Home</span>
+  </div>
+<a href="flight.html" class="menu-item">
+  <div class="menu-item">
+    <i class="fa-solid fa-plane"></i>
+    <span>Flights</span>
+  </div>
+  </a>
+    <a href="tours.html" class="menu-item">
+  <div class="menu-item new">
+    <span class="badge">NEW</span>
+    <i class="fa-solid fa-earth-americas"></i>
+    <span>Tours</span>
+  </div>
+  </a>
+  
+  
+ <a href="hotel.html" class="menu-item">  
+  <div class="menu-item">
+    <i class="fa-solid fa-hotel"></i>
+     <span>Hotels</span>
+  </div>
+  </a>
+<A href="homestay.html" class="menu-item">
+  <div class="menu-item">
+    <i class="fa-solid fa-house"></i>
+    <span>Homestay</span>
+  </div>
+  </A>
+
+
+  <a href="holiday pakages.html" class="menu-item">
+  <div class="menu-item">
+     <span class="badge">VIP</span>
+    <i class="fa-solid fa-umbrella-beach"></i>
+    <span>Holiday Packages</span>
+  </div>
+  </a>
+
+<a href="trains.html" class="menu-item">
+  <div class="menu-item">
+    <i class="fa-solid fa-train"></i>
+    <span>Trains</span>
+  </div>
+  </a>
+  <a href="buses.html" class="menu-item">
+  <div class="menu-item">
+    <i class="fa-solid fa-bus"></i>
+    <span>Buses</span>
+
+  </div>
+  </a>
+
+  <a href="cabs.html" class="menu-item">
+  <div class="menu-item">
+    <i class="fa-solid fa-car"></i>
+    <span>Cabs</span>
+  </div>
+  </a>
+
+
+<a href="visa.html" class="menu-item">
+  <div class="menu-item">
+    <i class="fa-solid fa-passport"></i>
+    <span>Visa</span>
+  </div>
+  </a>
+
+<a href="help.html" class="menu-item">
+  <div class="menu-item">
+    <i class="fa-solid fa-question-circle"></i>
+    <span>Help</span>
+  </div>
+  </a>
+
+</div>
+<!-- Flight Search Section -->
+
+<div class="flight-search">
+
+  <!-- Trip type -->
+  <div class="trip-options">
+    <label><input type="radio" name="trip" checked> One Way</label>
+    <label><input type="radio" name="trip"> Round Trip</label>
+    <label><input type="radio" name="trip"> Multi City</label>
+  </div>
+
+  <!-- Search fields -->
+  <div class="search-fields">
+
+    <div class="box">
+      <p>From</p>
+      <h2>Delhi</h2>
+      <span>DEL, Delhi Airport India</span>
+    </div>
+
+    <div class="box">
+      <p>To</p>
+      <h2>Bengaluru</h2>
+      <span>BLR, Kempegowda International Airport</span>
+    </div>
+
+    <div class="box">
+      <p>Departure</p>
+      <h2>15 Mar'26</h2>
+      <span>Sunday</span>
+    </div>
+
+    <div class="box">
+      <p>Return</p>
+      <h2>Add Return</h2>
+      <span>Tap to add date</span>
+    </div>
+
+    <div class="box">
+      <p>Travellers & Class</p>
+      <h2>1 Traveller</h2>
+      <span>Economy</span>
+    </div>
+
+  </div>
+
+  <!-- Special fares -->
+  <div class="fare-buttons">
+    <button class="active">Regular</button>
+    <button>Student</button>
+    <button>Armed Forces</button>
+    <button>Senior Citizen</button>
+    <button>Doctor & Nurses</button>
+  </div>
+
+  <!-- Search button -->
+  <div class="search-button">
+    <button>SEARCH</button>
+  </div>
+
+</div>
+<section class="offers-section">
+<center>
+<h1 class="offer-title">Offers</h1>
+</center>
+<div class="offers-grid">
+
+<div class="offer-card">
+<img src="images/off.webp" class="offer-img">
+<div class="offer-content">
+<h3>Up to 40% OFF on Flights, Stays</h3>
+<p>Pause your routine & get travel-ready for the long weekend.</p>
+<a href="#">BOOK NOW</a>
+</div>
+</div>
+
+<div class="offer-card">
+<img src="images/sin.jpeg" class="offer-img">
+<div class="offer-content">
+<h3>Singapore Special</h3>
+<p>Get 1 FREE activity on cruise packages.</p>
+<a href="#">BOOK NOW</a>
+</div>
+</div>
+
+<div class="offer-card">
+<img src="images/thai.avif" class="offer-img">
+<div class="offer-content">
+<h3>Head to Thailand for Songkran</h3>
+<p>Grab up to 35% OFF on flights & stays.</p>
+<a href="#">BOOK NOW</a>
+</div>
+</div>
+
+<div class="offer-card">
+<img src="images/taj.jpeg" class="offer-img">
+<div class="offer-content">
+<h3>Memorable Stays at Taj</h3>
+<p>Flat 10% savings on breakfast stays.</p>
+<a href="#">BOOK NOW</a>
+</div>
+</div>
+
+</div>
+
+</section>
+<section class="airline-section">
+
+<h2>Experience Flying with our Airline Partners</h2>
+
+<div class="airline-container">
+
+<div class="airline-card">
+<img src="images/ai.webp">
+<p>Air India</p>
+</div>
+
+<div class="airline-card">
+<img src="images/aa.jpg">
+<p>AirAsia</p>
+</div>
+
+<div class="airline-card">
+<img src="images/eawebp.webp" height="125">
+<p>Etihad Airways</p>
+</div>
+
+<div class="airline-card">
+<img src="images/ma.jpeg">
+<p>Malaysia Airlines</p>
+</div>
+
+</div>
+
+</section>
+<section class="hotel-section">
+
+
+<div class="hotel-left">
+<h2>Flagship Hotel Stores<br>on our traveller</h2>
+</div>
+
+<div class="hotel-container">
+
+<div class="hotel-card">
+<img src="images/store.jpeg">
+<p>Sterling Hotels & Resorts</p>
+</div>
+
+<div class="hotel-card">
+<img src="images/hotel.jpeg">
+<p>Hyatt Hotels</p>
+</div>
+
+<div class="hotel-card">
+<img src="images/royal hotel.jpeg">
+<p>Royal Orchid</p>
+</div>
+
+</div>
+<div id="ai-trigger" onclick="toggleChat()"><i class="fa-solid fa-comment-dots"></i></div>
+<div id="ai-chat-window">
+    <div class="ai-header">
+        <div><i class="fa-solid fa-robot"></i> <strong>Traveler Assistant</strong></div>
+        <i class="fa-solid fa-xmark" style="cursor:pointer" onclick="toggleChat()"></i>
+    </div>
+    <div id="ai-body">
+        <div class="msg bot-msg">Hello! I'm your AI travel concierge. I see you're planning a trip from <b>Delhi</b> to <b>Bengaluru</b>. How can I help today?</div>
+    </div>
+    <div id="ai-typing" class="typing" style="padding-left: 20px;">AI is thinking...</div>
+    <div class="ai-footer">
+        <input type="text" id="ai-input" placeholder="Type your question..." onkeypress="handleKey(event)">
+        <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+</div>
+
+</section>
+<section class="about-travel">
+  <h3>About Traveler</h3>
+  <p>
+    Traveler helps you book flights, hotels, trains, buses and holiday
+    packages easily. Discover amazing destinations, compare prices,
+    and plan your perfect trip with comfort and convenience.
+    <h3>About this site</h3>
+    <p>Customer Support, Payment Security, Privacy Policy, Cookie Policy, User Agreement, Terms of Service, Franchise Offices, Make A Payment, Work From Home, Escalation Channel, Report Security Issues
+      <h3>Top hotels in india</h3>
+      <p>
+        Fairmont Jaipur, St Regis Goa, Six Senses Fort Barwara, W Goa, Grand Hyatt Goa, Shangri-La Bangalore, The St Regis Mumbai, Taj Rishikesh, Grand Hyatt Mumbai, Le Meridien Delhi, Rambagh Palace Jaipur, Leela Palace Chennai, The Leela Palace Udaipur, Taj Lake Palace Udaipur, Jw Marriott Chandigarh, Alila Diwa Goa, Le Meridien Goa, Taj Lands End Mumbai, Itc Grand Chola Chennai, Itc Maratha Mumbai, Oberoi Udaivilas, Jai Mahal Palace Jaipur, Taj Mahal Tower Mumbai, Marriott Suites Pune, Park Hyatt Chennai, The Leela Palace Jaipur, Jw Marriott Mumbai Sahar, Jw Marriott Mumbai Juhu, The Ritz Carlton Bengaluru, The Oberoi New Delhi, Taj Resort & Convention Centre Goa, Taj Bengal Kolkata, Taj Coromandel Chennai, The Oberoi Gurgaon, The Westin Goa, Jw Marriott Hotel Pune, The Leela Palace New Delhi, Taj West End Bengaluru, The Taj Mahal Palace Mumbai, Best Hotels in India
+      </p>
+
+Customer Support, Payment Security, Privacy Policy, Cookie Policy, User Agreement, Terms of Service, Franchise Offices, Make A Payment, Work From Home, Escalation Channel, Report Security Issues</p>
+    
+  </p>
+  <h3>Visa Offerings</h3>
+  <p>
+    Australia Visa, Austria Visa, Azerbaijan Visa, Bangladesh Visa, Bahrain Visa, Cambodia Visa, China Visa, Czech Republic Visa, Dubai - UAE Visa, Egypt Visa, Finland Visa, France Visa, Georgia Visa, Germany Visa, Greece Visa, Hong Kong Visa, Iceland Visa, Indonesia Visa, Ireland Visa, Italy Visa, Japan Visa, Kenya Visa, Malaysia Visa, Morocco Visa, Netherlands Visa, New Zealand Visa, Norway Visa, Portugal Visa, Qatar Visa, Russia Visa, Singapore Visa, South Africa Visa, South Korea Visa, Spain Visa, Sri Lanka Visa, Sweden Visa, Switzerland Visa, Thailand Visa, United Kingdom - UK Visa, Uzbekistan Visa, Vietnam Visa, Mongolia Visa, Zambia Visa
+  </p>
+ <h3>Top International hotels</h3>
+
+<p>
+  Adaaran Club Rannalhi, Marina Bay Sands Singapore, Coco Bodu Hithi, Taj Dubai, Atlantis Hotel Dubai, Amari Phuket, Jw Marriott Dubai, Armani Hotel Dubai, Grand Hyatt Dubai, Saii Lagoon Maldives, Gevora Hotel Dubai, Hyatt Regency Dubai, Pan Pacific Singapore, The Palm Dubai, Caesars Palace, Baiyoke Sky Hotel, Centara Pattaya Hotel, Embudu Village, Orchard Hotel Singapore, Reethi Beach Resort, Ambassador Hotel Bangkok, Dusit Thani Pattaya, Shangri La Singapore, Sunbeam Hotel Pattaya, Taj Samudra Colombo, Bangkok Palace Hotel, Hilton Pattaya, Novotel Phuket Resort, Taj Exotica Resort Maldives, Village Hotel Bugis, Avani Atrium Bangkok, The Plaza New York, Village Hotel Albert Court, Amari Pattaya
+</p>
+<h1>CONTECT DETAILS</h1>
+<H5>Contect  no : 987677757,7877878792,632963878</H5>
+<h5>Location : Delhi,Neemrana,Badwad,600612</h5>
+</section>
+
+<script>
+  function startSearch() {
+        document.getElementById('search-status').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('search-status').innerHTML = '<p>No flights found for selected date. Please try another day!</p>';
+        }, 2000);
+    }
+  /* --- ENHANCED AI LOGIC --- */
+    function toggleChat() {
+        const chat = document.getElementById('ai-chat-window');
+        chat.style.display = (chat.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    function handleKey(e) { if (e.key === 'Enter') sendMessage(); }
+
+    function sendMessage() {
+        const input = document.getElementById('ai-input');
+        const body = document.getElementById('ai-body');
+        const typingIndicator = document.getElementById('ai-typing');
+        const text = input.value.trim();
+
+        if (text === "") return;
+
+        // User Message
+        body.innerHTML += `<div class="msg user-msg">${text}</div>`;
+        input.value = "";
+        body.scrollTop = body.scrollHeight;
+
+        // Start "Thinking"
+        typingIndicator.style.display = 'block';
+
+        setTimeout(() => {
+            typingIndicator.style.display = 'none';
+            let reply = generateDynamicResponse(text);
+            body.innerHTML += `<div class="msg bot-msg">${reply}</div>`;
+            body.scrollTop = body.scrollHeight;
+        }, 1200);
+    }
+
+    function generateDynamicResponse(input) {
+        const query = input.toLowerCase();
+        
+        // Dictionary-based logic for variety
+        const responses = {
+            greetings: ["Hello! How can I assist with your journey?", "Hi there! Looking for travel advice?", "Greetings! Where are we heading next?"],
+            flights: ["I can check live availability for Delhi to Bengaluru. Usually, Indigo and Air India have the best morning slots.", "Flight prices are currently fluctuating. Would you like me to alert you if prices drop below ₹4,000?"],
+            offers: ["We currently have a 40% discount on Taj Hotels. Also, check out the 'Singapore Special' in our Offers section!", "If you're a student or senior citizen, you can get an extra 10% off. Use the buttons in the search bar above."],
+            visa: ["For Thailand, there's a visa-on-arrival option for many travelers. For Singapore, you'll need an e-visa 2 weeks in advance.", "I can help with the documentation. Which country's visa process are you interested in?"],
+            hotels: ["Bengaluru has some amazing boutique stays near Indiranagar. Would you like luxury or budget options?", "I recommend Hyatt or Royal Orchid for your stay in Bengaluru."],
+            help: ["I can help you book flights, find hotels, check visa rules, or find active promo codes. What do you need?"]
+        };
+
+        const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+        if (query.includes("hi") || query.includes("hello")) return getRandom(responses.greetings);
+        if (query.includes("flight") || query.includes("ticket")) return getRandom(responses.flights);
+        if (query.includes("offer") || query.includes("discount") || query.includes("cheap")) return getRandom(responses.offers);
+        if (query.includes("visa") || query.includes("passport")) return getRandom(responses.visa);
+        if (query.includes("hotel") || query.includes("stay")) return getRandom(responses.hotels);
+        if (query.includes("help") || query.includes("what can you do")) return getRandom(responses.help);
+
+        return "That's an interesting question! While I don't have the exact data for that right now, I can certainly help you search for flights, hotels, or holiday packages. Would you like to try one of those?";
+    }
+</script>
+</body>
+</html>
